@@ -4,44 +4,44 @@ COL='\033[1;32m'
 NC='\033[0m' # No Color
 echo -e "${COL}Setting up klipper"
 
-: ${CONFIG_PATH:="/opt/config"}
-: ${GCODE_PATH:="/opt/gcode"}
+: "${CONFIG_PATH:="/opt/config"}"
+: "${GCODE_PATH:="/opt/gcode"}"
 
-: ${KLIPPER_REPO:="https://github.com/KevinOConnor/klipper.git"}
-: ${KLIPPER_PATH:="/opt/klipper"}
-: ${KLIPPY_VENV_PATH:="/opt/venv/klippy"}
+: "${KLIPPER_REPO:="https://github.com/KevinOConnor/klipper.git"}"
+: "${KLIPPER_PATH:="/opt/klipper"}"
+: "${KLIPPY_VENV_PATH:="/opt/venv/klippy"}"
 
-: ${MOONRAKER_REPO:="https://github.com/Arksine/moonraker"}
-: ${MOONRAKER_PATH:="/opt/moonraker"}
-: ${MOONRAKER_VENV_PATH:="/opt/venv/moonraker"}
+: "${MOONRAKER_REPO:="https://github.com/Arksine/moonraker"}"
+: "${MOONRAKER_PATH:="/opt/moonraker"}"
+: "${MOONRAKER_VENV_PATH:="/opt/venv/moonraker"}"
 
-: ${CLIENT:="mainsail"}
-: ${CLIENT_PATH:="/opt/www"}
+: "${CLIENT:="mainsail"}"
+: "${CLIENT_PATH:="/opt/www"}"
 
 ################################################################################
 # PRE
 ################################################################################
 
 apk add git unzip libffi-dev make gcc g++ \
-ncurses-dev avrdude gcc-avr binutils-avr avr-libc \
-python3 py3-virtualenv \
-python3-dev freetype-dev fribidi-dev harfbuzz-dev jpeg-dev lcms2-dev openjpeg-dev tcl-dev tiff-dev tk-dev zlib-dev \
-jq udev
+  ncurses-dev avrdude gcc-avr binutils-avr avr-libc \
+  python3 py3-virtualenv \
+  python3-dev freetype-dev fribidi-dev harfbuzz-dev jpeg-dev lcms2-dev openjpeg-dev tcl-dev tiff-dev tk-dev zlib-dev \
+  jq udev
 
 # sudo rc-update del mdev sysinit
 # sudo setup-udev
 
 case $CLIENT in
-  fluidd)
-    CLIENT_RELEASE_URL=`curl -s https://api.github.com/repos/cadriel/fluidd/releases | jq -r ".[0].assets[0].browser_download_url"`
-    ;;
-  mainsail)
-    CLIENT_RELEASE_URL=`curl -s https://api.github.com/repos/meteyou/mainsail/releases | jq -r ".[0].assets[0].browser_download_url"`
-    ;;
-  *)
-    echo "Unknown client $CLIENT (choose fluidd or mainsail)"
-    exit 2
-    ;;
+fluidd)
+  CLIENT_RELEASE_URL=$(curl -s https://api.github.com/repos/cadriel/fluidd/releases | jq -r ".[0].assets[0].browser_download_url")
+  ;;
+mainsail)
+  CLIENT_RELEASE_URL=$(curl -s https://api.github.com/repos/meteyou/mainsail/releases | jq -r ".[0].assets[0].browser_download_url")
+  ;;
+*)
+  echo "Unknown client $CLIENT (choose fluidd or mainsail)"
+  exit 2
+  ;;
 esac
 
 ################################################################################
@@ -93,7 +93,7 @@ $MOONRAKER_VENV_PATH/bin/pip install -r $MOONRAKER_PATH/scripts/moonraker-requir
 
 # sudo chmod a+x /etc/init.d/moonraker
 
-cat > $HOME/moonraker.conf <<EOF
+cat >"$CONFIG_PATH"/moonraker.conf <<EOF
 [server]
 host: 0.0.0.0
 config_path: $CONFIG_PATH
@@ -109,7 +109,7 @@ trusted_clients:
 [update_manager client fluidd]
 type: web
 repo: cadriel/fluidd
-path: ~/www
+path: $CLIENT_PATH
 EOF
 
 # sudo rc-update add moonraker
@@ -212,14 +212,14 @@ mkdir -p $CLIENT_PATH
 # chmod a+x $HOME/update
 
 mkdir -p /root/extensions/klipper_moonraker_mainsail
-cat << EOF > /root/extensions/klipper_moonraker_mainsail/manifest.json
+cat <<EOF >/root/extensions/klipper_moonraker_mainsail/manifest.json
 {
         "title": "Klipper + Moonraker + Mainsail / FluidD",
         "description": "Requires plugin"
 }
 EOF
 
-cat << EOF > /root/extensions/klipper_moonraker_mainsail/start.sh
+cat <<EOF >/root/extensions/klipper_moonraker_mainsail/start.sh
 #!/bin/sh
 # python3 /klipper/klippy/klippy.py /root/printer.cfg -l /tmp/klippy.log -a /tmp/klippy_uds
 # $KLIPPY_VENV_PATH/bin/python $KLIPPER_PATH/klippy/klippy.py $CONFIG_PATH/printer.cfg -l /tmp/klippy.log -a /tmp/klippy_uds
@@ -229,7 +229,7 @@ service moonraker start
 caddy run --config /etc/caddy/Caddyfile
 EOF
 
-cat << EOF > /root/extensions/klipper_moonraker_mainsail/kill.sh
+cat <<EOF >/root/extensions/klipper_moonraker_mainsail/kill.sh
 #!/bin/sh
 caddy stop
 pkill -f 'klippy\.py'
