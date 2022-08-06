@@ -4,6 +4,8 @@ COL='\033[1;32m'
 NC='\033[0m' # No Color
 echo -e "${COL}Setting up klipper"
 
+echo -e "${COL}Installing dependencies...\n${NC}"
+
 : "${CONFIG_PATH:="/opt/config"}"
 : "${GCODE_PATH:="/opt/gcode"}"
 
@@ -35,7 +37,7 @@ apk add git unzip libffi-dev make gcc g++ \
 mkdir -p $CONFIG_PATH $GCODE_PATH
 
 test -d $KLIPPER_PATH || git clone $KLIPPER_REPO $KLIPPER_PATH
-test -d $KLIPPY_VENV_PATH || virtualenv -p python2 $KLIPPY_VENV_PATH
+test -d $KLIPPY_VENV_PATH || virtualenv -p python3 $KLIPPY_VENV_PATH
 $KLIPPY_VENV_PATH/bin/python -m pip install --upgrade pip
 $KLIPPY_VENV_PATH/bin/pip install -r $KLIPPER_PATH/scripts/klippy-requirements.txt
 
