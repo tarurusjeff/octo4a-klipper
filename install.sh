@@ -1,20 +1,31 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+COL='\033[1;32m'
+NC='\033[0m' # No Color
+echo -e "${COL}Setting up klipper"
+
+read -p "Do you have \"Plugin extras\" installed? (y/n): " -n 1 -r
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo -e "${COL}\nPlease go to settings and install plugin extras${NC}"
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
 
 set -euxo pipefail
 
-: ${CONFIG_PATH:="$HOME/config"}
-: ${GCODE_PATH:="$HOME/gcode"}
+: ${CONFIG_PATH:="/opt/config"}
+: ${GCODE_PATH:="/opt/gcode"}
 
 : ${KLIPPER_REPO:="https://github.com/KevinOConnor/klipper.git"}
-: ${KLIPPER_PATH:="$HOME/klipper"}
-: ${KLIPPY_VENV_PATH:="$HOME/venv/klippy"}
+: ${KLIPPER_PATH:="/opt/klipper"}
+: ${KLIPPY_VENV_PATH:="/opt/venv/klippy"}
 
 : ${MOONRAKER_REPO:="https://github.com/Arksine/moonraker"}
-: ${MOONRAKER_PATH:="$HOME/moonraker"}
-: ${MOONRAKER_VENV_PATH:="$HOME/venv/moonraker"}
+: ${MOONRAKER_PATH:="/opt/moonraker"}
+: ${MOONRAKER_VENV_PATH:="/opt/venv/moonraker"}
 
-: ${CLIENT:="fluidd"}
-: ${CLIENT_PATH:="$HOME/www"}
+: ${CLIENT:="mainsail"}
+: ${CLIENT_PATH:="/opt/www"}
 
 ################################################################################
 # PRE
@@ -98,7 +109,7 @@ config_path: $CONFIG_PATH
 
 [authorization]
 trusted_clients:
-  192.168.1.0/24
+  192.168.0.0/16
 
 [octoprint_compat]
 
@@ -120,30 +131,29 @@ EOF
 sudo apk add caddy curl
 
 sudo tee /etc/caddy/Caddyfile <<EOF
-:80
+:8080 {
+  route * {
 
-encode gzip
+    @moonraker {
+      path /server/* /websocket /printer/* /access/* /api/* /machine/*
+    }
 
-root * $CLIENT_PATH
+    handle @moonraker {
+      reverse_proxy localhost:7125
+    }
 
-@moonraker {
-  path /server/* /websocket /printer/* /access/* /api/* /machine/*
-}
+    handle /* {
+      root * /opt/www
+      file_server
+    }
 
-route @moonraker {
-  reverse_proxy localhost:7125
-}
-
-route /webcam {
-  reverse_proxy localhost:8081
-}
-
-route {
-  try_files {path} {path}/ /index.html
-  file_server
+    handle /webcam {
+        reverse_proxy localhost:8081
+    }
+  }
 }
 EOF
-
+CLIENT_RELEASE_URL='https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip'
 test -d $CLIENT_PATH && rm -rf $CLIENT_PATH
 mkdir -p $CLIENT_PATH
 (cd $CLIENT_PATH && wget -q -O $CLIENT.zip $CLIENT_RELEASE_URL && unzip $CLIENT.zip && rm $CLIENT.zip)
@@ -210,31 +220,34 @@ mkdir -p $CLIENT_PATH
 
 # chmod a+x $HOME/update
 
-mkdir -p /root/extensions/klipper
-cat << EOF > /root/extensions/klipper/manifest.json
+mkdir -p /root/extensions/klipper_moonraker_mainsail
+cat << EOF > /root/extensions/klipper_moonraker_mainsail/manifest.json
 {
         "title": "Klipper + Moonraker + Mainsail / FluidD",
         "description": "Requires plugin"
 }
 EOF
 
-cat << EOF > /root/extensions/klipper/start.sh
+cat << EOF > /root/extensions/klipper_moonraker_mainsail/start.sh
 #!/bin/sh
 # python3 /klipper/klippy/klippy.py /root/printer.cfg -l /tmp/klippy.log -a /tmp/klippy_uds
-$KLIPPY_VENV_PATH/bin/python $KLIPPER_PATH/klippy/klippy.py $CONFIG_PATH/printer.cfg -l /tmp/klippy.log -a /tmp/klippy_uds
-$MOONRAKER_VENV_PATH/bin/python $MOONRAKER_PATH/moonraker/moonraker.py
-caddy start
+# $KLIPPY_VENV_PATH/bin/python $KLIPPER_PATH/klippy/klippy.py $CONFIG_PATH/printer.cfg -l /tmp/klippy.log -a /tmp/klippy_uds
+# $MOONRAKER_VENV_PATH/bin/python $MOONRAKER_PATH/moonraker/moonraker.py
+service klipper start
+service moonraker start
+caddy run --config /etc/caddy/Caddyfile
 EOF
 
-cat << EOF > /root/extensions/klipper/kill.sh
+cat << EOF > /root/extensions/klipper_moonraker_mainsail/kill.sh
 #!/bin/sh
 caddy stop
 pkill -f 'klippy\.py'
 pkill -f 'moonraker.py'
 EOF
-chmod +x /root/extensions/klipper/start.sh
-chmod +x /root/extensions/klipper/kill.sh
-chmod 777 /root/extensions/klipper/start.sh
-chmod 777 /root/extensions/klipper/kill.sh
+
+chmod +x /root/extensions/klipper_moonraker_mainsail/start.sh
+chmod +x /root/extensions/klipper_moonraker_mainsail/kill.sh
+chmod 777 /root/extensions/klipper_moonraker_mainsail/start.sh
+chmod 777 /root/extensions/klipper_moonraker_mainsail/kill.sh
 
 echo -e "${COL}\nKlipper installed! Please kill the app and restart it again to see it in extension settings${NC}"
