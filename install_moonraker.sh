@@ -68,8 +68,6 @@ EOF
 
 cat <<EOF >/root/extensions/moonraker/kill.sh
 #!/bin/sh
-caddy stop
-pkill -f 'klippy\.py'
 pkill -f 'moonraker.py'
 EOF
 
