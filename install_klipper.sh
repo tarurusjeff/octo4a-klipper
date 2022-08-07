@@ -21,6 +21,7 @@ apk add git unzip libffi-dev make gcc g++ \
   ncurses-dev avrdude gcc-avr binutils-avr avr-libc \
   python3 py3-virtualenv \
   libffi-dev libusb-dev stm32flash \
+  py3-cffi py3-greenlet linux-headers can-utils \
   python3-dev freetype-dev fribidi-dev harfbuzz-dev jpeg-dev lcms2-dev openjpeg-dev tcl-dev tiff-dev tk-dev zlib-dev \
   gcc-arm-none-eabi binutils-arm-none-eabi libusb \
   jq udev
