@@ -17,18 +17,26 @@ echo -e "${COL}Installing dependencies...\n${NC}"
 # PRE
 ################################################################################
 
+# apk add git unzip libffi-dev make gcc g++ \
+#   ncurses-dev avrdude gcc-avr binutils-avr avr-libc \
+#   python3 py3-virtualenv \
+#   libffi-dev libusb-dev stm32flash \
+#   py3-cffi py3-greenlet linux-headers can-utils \
+#   python3-dev freetype-dev fribidi-dev harfbuzz-dev jpeg-dev lcms2-dev openjpeg-dev tcl-dev tiff-dev tk-dev zlib-dev \
+#   gcc-arm-none-eabi binutils-arm-none-eabi libusb \
+#   jq udev
+
 apk add git unzip libffi-dev make gcc g++ \
-  ncurses-dev avrdude gcc-avr binutils-avr avr-libc \
+  ncurses-dev avrdude gcc-avr binutils-avr \
   python3 py3-virtualenv \
-  libffi-dev libusb-dev stm32flash \
-  py3-cffi py3-greenlet linux-headers can-utils \
   python3-dev freetype-dev fribidi-dev harfbuzz-dev jpeg-dev lcms2-dev openjpeg-dev tcl-dev tiff-dev tk-dev zlib-dev \
-  gcc-arm-none-eabi binutils-arm-none-eabi libusb \
-  jq udev
+  jq udev curl-dev libressl-dev curl libsodium
 
 ################################################################################
 # KLIPPER
 ################################################################################
+
+apk add avr-libc gcc-arm-none-eabi newlib-arm-none-eabi
 
 mkdir -p $CONFIG_PATH $GCODE_PATH
 
