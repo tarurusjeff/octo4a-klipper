@@ -14,18 +14,12 @@ echo -e "${COL}Installing dependencies...\n${NC}"
 : "${MOONRAKER_BOT_VENV_PATH:="/opt/venv/moonraker-telegram-bot"}"
 
 ################################################################################
-# PRE
+# MOONRAKER_BOT
 ################################################################################
 
 apk add python3 py3-virtualenv python3-dev \
   py3-cryptography py3-gevent opencv \
-  x264 libx264-dev libwebp-dev
-
-################################################################################
-# MOONRAKER_BOT
-################################################################################
-
-apk add libsodium curl-dev
+  x264 x264-dev libwebp-dev
 
 test -d $MOONRAKER_BOT_PATH || git clone $MOONRAKER_BOT_REPO $MOONRAKER_BOT_PATH
 test -d $MOONRAKER_BOT_VENV_PATH || virtualenv -p python3 $MOONRAKER_BOT_VENV_PATH
