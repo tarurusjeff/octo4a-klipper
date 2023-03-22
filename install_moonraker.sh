@@ -26,6 +26,7 @@ apk add git unzip libffi-dev make gcc g++ \
 ################################################################################
 # MOONRAKER
 ################################################################################
+mkdir -p $CONFIG_PATH $GCODE_PATH
 
 apk add libsodium curl-dev
 
