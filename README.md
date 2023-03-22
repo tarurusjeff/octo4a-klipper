@@ -5,5 +5,5 @@ Automated klipper/moonraker/mainsail/fluidd installation script for Alpine Linux
 ## Usage
 
 ```bash
-curl -Ls https://raw.githubusercontent.com/imyt/octo4a-klipper/master/install.sh | bash -s
+curl -L https://raw.githubusercontent.com/tarurusjeff/octo4a-klipper/master/install.sh | bash
 ```
