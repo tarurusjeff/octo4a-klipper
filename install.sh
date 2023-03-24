@@ -102,7 +102,8 @@ tee /etc/caddy/Caddyfile <<EOF
   }
 }
 EOF
-CLIENT_RELEASE_URL='https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip'
+CLIENT_RELEASE_URL='https://nas.ddhome.top/web/mainsail.zip'
+#CLIENT_RELEASE_URL='https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip'
 test -d $CLIENT_PATH && rm -rf $CLIENT_PATH
 mkdir -p $CLIENT_PATH
 (cd $CLIENT_PATH && wget -q -O $CLIENT.zip $CLIENT_RELEASE_URL && unzip $CLIENT.zip && rm $CLIENT.zip)
